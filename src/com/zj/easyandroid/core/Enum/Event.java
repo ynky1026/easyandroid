@@ -10,5 +10,5 @@ package com.zj.easyandroid.core.Enum;
  * @since 1.0
  */
 public enum Event {
-	CLICK, LONGCLICK, TOUCH, FOCUSCHANG;
+	CLICK, LONGCLICK, TOUCH, FOCUSCHANG,TEXTCHANGE;
 }

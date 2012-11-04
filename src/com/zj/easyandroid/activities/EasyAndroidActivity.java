@@ -25,6 +25,7 @@ import android.view.View.OnTouchListener;
 import com.zj.easyandroid.annotation.Listener;
 import com.zj.easyandroid.annotation.Receiver;
 import com.zj.easyandroid.core.Enum.Event;
+import com.zj.easyandroid.core.EventHandler.TextChangeHandler;
 
 public class EasyAndroidActivity extends Activity {
 
@@ -67,9 +68,6 @@ public class EasyAndroidActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		cls = this.getClass();
-		Log.d(TAG, cls.getName());
-		init();
 		baseHandler = new Handler() {
 			public void handleMessage(android.os.Message msg) {
 				try {
@@ -92,10 +90,11 @@ public class EasyAndroidActivity extends Activity {
 		return t;
 	}
 
-	/**
-	 * 此方法在onCreate的初始化方法未能正常调用的情况下 显式的初始化框架页面
-	 */
-	public void reset() {
+	@Override
+	protected void onStart() {
+		super.onStart();
+		cls = this.getClass();
+		Log.d(TAG, cls.getName());
 		init();
 	}
 
@@ -214,6 +213,10 @@ public class EasyAndroidActivity extends Activity {
 					}
 				}
 			});
+			break;
+		case TEXTCHANGE:
+			TextChangeHandler handler = TextChangeHandler.getInstance(this);
+			handler.registerEvent(v, method);
 			break;
 		default:
 			break;
