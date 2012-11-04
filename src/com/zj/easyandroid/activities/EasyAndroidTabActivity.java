@@ -24,7 +24,7 @@ import android.view.View.OnTouchListener;
 
 import com.zj.easyandroid.annotation.Listener;
 import com.zj.easyandroid.annotation.Receiver;
-import com.zj.easyandroid.core.Event;
+import com.zj.easyandroid.core.Enum.Event;
 
 public class EasyAndroidTabActivity extends TabActivity{
 

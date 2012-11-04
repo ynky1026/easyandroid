@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.zj.easyandroid.core.Event;
+import com.zj.easyandroid.core.Enum.Event;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
