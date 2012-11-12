@@ -15,17 +15,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 
 import com.zj.easyandroid.annotation.Listener;
 import com.zj.easyandroid.annotation.Receiver;
 import com.zj.easyandroid.core.Enum.Event;
-import com.zj.easyandroid.core.EventHandler.TextChangeHandler;
+import com.zj.easyandroid.core.EventHandler.IEventHandler;
+import com.zj.easyandroid.core.factories.CoreFactory;
 
 public class EasyAndroidActivity extends Activity {
 
@@ -148,79 +144,84 @@ public class EasyAndroidActivity extends Activity {
 	private void setListeners(final Method method) {
 		Listener listener = method.getAnnotation(Listener.class);
 		int id = listener.id();
+		View v = findViewById(id);
 		Event event = listener.event();
-		View v = (View) this.findViewById(id);
-		final Object o = this;
-		switch (event) {
-		case CLICK:
-			v.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					try {
-						method.setAccessible(true);
-						method.invoke(cls.cast(o), v);
-						method.setAccessible(false);
-					} catch (Exception e) {
-						Log.e(TAG, "long click exception", e);
-					}
-				}
-			});
-			break;
-		case LONGCLICK:
-			v.setOnLongClickListener(new OnLongClickListener() {
-
-				@Override
-				public boolean onLongClick(View v) {
-					try {
-						method.setAccessible(true);
-						method.invoke(cls.cast(o), v);
-						method.setAccessible(false);
-					} catch (Exception e) {
-						Log.e(TAG, "click exception", e);
-					}
-					return false;
-				}
-			});
-			break;
-		case TOUCH:
-			v.setOnTouchListener(new OnTouchListener() {
-
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					try {
-						method.setAccessible(true);
-						method.invoke(cls.cast(o), v, event);
-						method.setAccessible(false);
-					} catch (Exception e) {
-						Log.e(TAG, "touch exception", e);
-					}
-					return false;
-				}
-			});
-			break;
-		case FOCUSCHANG:
-			v.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					try {
-						method.setAccessible(true);
-						method.invoke(cls.cast(o), v, hasFocus);
-						method.setAccessible(false);
-					} catch (Exception e) {
-						Log.e(TAG, "focus change exception", e);
-					}
-				}
-			});
-			break;
-		case TEXTCHANGE:
-			TextChangeHandler handler = TextChangeHandler.getInstance(this);
-			handler.registerEvent(v, method);
-			break;
-		default:
-			break;
+		// switch (event) {
+		// case CLICK:
+		// v.setOnClickListener(new OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// try {
+		// method.setAccessible(true);
+		// method.invoke(cls.cast(o), v);
+		// method.setAccessible(false);
+		// } catch (Exception e) {
+		// Log.e(TAG, "long click exception", e);
+		// }
+		// }
+		// });
+		// break;
+		// case LONGCLICK:
+		// v.setOnLongClickListener(new OnLongClickListener() {
+		//
+		// @Override
+		// public boolean onLongClick(View v) {
+		// try {
+		// method.setAccessible(true);
+		// method.invoke(cls.cast(o), v);
+		// method.setAccessible(false);
+		// } catch (Exception e) {
+		// Log.e(TAG, "click exception", e);
+		// }
+		// return false;
+		// }
+		// });
+		// break;
+		// case TOUCH:
+		// v.setOnTouchListener(new OnTouchListener() {
+		//
+		// @Override
+		// public boolean onTouch(View v, MotionEvent event) {
+		// try {
+		// method.setAccessible(true);
+		// method.invoke(cls.cast(o), v, event);
+		// method.setAccessible(false);
+		// } catch (Exception e) {
+		// Log.e(TAG, "touch exception", e);
+		// }
+		// return false;
+		// }
+		// });
+		// break;
+		// case FOCUSCHANG:
+		// v.setOnFocusChangeListener(new OnFocusChangeListener() {
+		//
+		// @Override
+		// public void onFocusChange(View v, boolean hasFocus) {
+		// try {
+		// method.setAccessible(true);
+		// method.invoke(cls.cast(o), v, hasFocus);
+		// method.setAccessible(false);
+		// } catch (Exception e) {
+		// Log.e(TAG, "focus change exception", e);
+		// }
+		// }
+		// });
+		// break;
+		// case TEXTCHANGE:
+		// TextChangeHandler handler = new TextChangeHandler(this);
+		// handler.registerEvent(v, method);
+		// break;
+		// default:
+		// break;
+		// }
+		IEventHandler handler = CoreFactory.getEventFactory().getEventHandler(
+				event, this);
+		if(handler == null){
+			return;
 		}
+		handler.registerEvent(v, method);
 	}
 
 	/**

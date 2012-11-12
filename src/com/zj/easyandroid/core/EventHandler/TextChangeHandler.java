@@ -4,15 +4,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zj.easyandroid.annotation.TextChangeListener;
-import com.zj.easyandroid.core.Enum.TextChange;
-
 import android.app.Activity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+
+import com.zj.easyandroid.annotation.TextChangeListener;
+import com.zj.easyandroid.core.Enum.TextChange;
 
 /**
  * TextChange事件处理类
@@ -24,8 +24,6 @@ public class TextChangeHandler implements IEventHandler {
 
 	private static final String TAG = "TextChangeHandler";
 
-	private static TextChangeHandler instance;
-
 	private Activity receiver;
 
 	/**
@@ -33,15 +31,8 @@ public class TextChangeHandler implements IEventHandler {
 	 */
 	protected List<Method> methods = new ArrayList<Method>();
 
-	private TextChangeHandler(Activity a) {
+	public TextChangeHandler(Activity a) {
 		receiver = a;
-	}
-
-	public static TextChangeHandler getInstance(Activity a) {
-		if (instance == null) {
-			instance = new TextChangeHandler(a);
-		}
-		return instance;
 	}
 
 	@Override
@@ -72,14 +63,14 @@ public class TextChangeHandler implements IEventHandler {
 						if (changeMethod == null) {
 							return;
 						}
+						changeMethod.setAccessible(true);
 						if (changeMethod.getParameterTypes().length == 0) {
-							changeMethod.setAccessible(true);
 							changeMethod.invoke(receiver, new Object[] {});
-							changeMethod.setAccessible(false);
 						} else {
 							changeMethod.invoke(receiver, s, start, before,
 									count);
 						}
+						changeMethod.setAccessible(false);
 					} catch (Exception e) {
 						Log.e(TAG, "registerEvent error", e);
 					}
@@ -103,15 +94,14 @@ public class TextChangeHandler implements IEventHandler {
 						if (beforeMethod == null) {
 							return;
 						}
-
+						beforeMethod.setAccessible(true);
 						if (beforeMethod.getParameterTypes().length == 0) {
-							beforeMethod.setAccessible(true);
 							beforeMethod.invoke(receiver, new Object[] {});
-							beforeMethod.setAccessible(false);
 						} else {
 							beforeMethod.invoke(receiver, s, start, count,
 									after);
 						}
+						beforeMethod.setAccessible(false);
 					} catch (Exception e) {
 						Log.e(TAG, "registerEvent error", e);
 					}
@@ -134,13 +124,13 @@ public class TextChangeHandler implements IEventHandler {
 						if (afterMethod == null) {
 							return;
 						}
+						afterMethod.setAccessible(true);
 						if (afterMethod.getParameterTypes().length == 0) {
-							afterMethod.setAccessible(true);
 							afterMethod.invoke(receiver, new Object[] {});
-							afterMethod.setAccessible(false);
 						} else {
 							afterMethod.invoke(receiver, s);
 						}
+						afterMethod.setAccessible(false);
 					} catch (Exception e) {
 						Log.e(TAG, "registerEvent error", e);
 					}
