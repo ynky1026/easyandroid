@@ -23,7 +23,7 @@ public abstract class IMessageManager {
 
 
     /**
-     * 处理消息
+     * 处理消息 客户端程序员在此方法中完成业务逻辑 并自己选择适当方式返回结果给界面
      * 
      * @param msg
      */

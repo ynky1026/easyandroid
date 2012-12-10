@@ -25,17 +25,10 @@ public class ThreadPool {
      */
     private static final String TAG = "ThreadPool";
 
+    /**
+     * 线程处理类
+     */
     private static ThreadPool instance;
-
-    // /**
-    // * 消息
-    // */
-    // private Message msg;
-    //
-    // /**
-    // * 消息处理类
-    // */
-    // private IMessageManager manager;
 
     /**
      * 线程池
