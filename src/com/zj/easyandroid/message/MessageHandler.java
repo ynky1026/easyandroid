@@ -1,9 +1,8 @@
 package com.zj.easyandroid.message;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.util.Log;
+
+import com.zj.easyandroid.core.ThreadPool;
 
 /**
  * 消息处理类 simple introduction
@@ -17,23 +16,16 @@ import java.util.Map;
  */
 public class MessageHandler {
 
+    private static final String TAG = "MessageHandler";
+
     private static MessageHandler instance;
 
-    /**
-     * 消息处理类的集合
-     */
-    private List<IMessageManager> list = new ArrayList<IMessageManager>();
-
-    /**
-     * 消息发送者与消息的对应列表
-     */
-    private Map<IMessageManager, Message> map = new HashMap<IMessageManager, Message>();
+    private ThreadPool pool;
 
 
 
     private MessageHandler() {
-        MyLooper looper = new MyLooper();
-        looper.start();
+        pool = ThreadPool.getInstance();
     }
 
 
@@ -49,18 +41,27 @@ public class MessageHandler {
 
     /**
      * 将消息放入队列
+     * 
      * @param msg
      * @param manager
      */
     public void putMessage(Message msg, IMessageManager manager) {
-        list.add(manager);
-        map.put(manager, msg);
+        try {
+            pool.putMessage(manager, msg);
+        } catch (Exception e) {
+            Log.e(TAG, "put Message exception", e);
+        }
     }
 
-    class MyLooper extends Thread {
-        @Override
-        public void run() {
 
+
+    /**
+     * 释放资源
+     */
+    public void release() {
+        if (pool != null) {
+            pool.release();
+            pool = null;
         }
     }
 }
