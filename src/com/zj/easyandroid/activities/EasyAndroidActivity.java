@@ -1,5 +1,6 @@
 package com.zj.easyandroid.activities;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 
 import com.zj.easyandroid.annotation.Listener;
@@ -43,7 +45,7 @@ public class EasyAndroidActivity extends Activity {
 	/**
 	 * 用于存储消息what和对应method的map
 	 */
-	private Map<Integer, Method> msgMethod = new HashMap<Integer, Method>();
+	private SparseArray<Method> msgMethod = new SparseArray<Method>();
 
 	/**
 	 * 运行时类型
@@ -58,26 +60,13 @@ public class EasyAndroidActivity extends Activity {
 	/**
 	 * hd
 	 */
-	protected Handler baseHandler;
+	protected BaseHandler baseHandler;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		baseHandler = new Handler() {
-			public void handleMessage(android.os.Message msg) {
-				try {
-					int i = msg.what;
-					Method method = msgMethod.get(i);
-					Object o = EasyAndroidActivity.this;
-					method.setAccessible(true);
-					method.invoke(cls.cast(o));
-					method.setAccessible(false);
-				} catch (Exception e) {
-					Log.e(TAG, "handleMessage exception", e);
-				}
-			};
-		};
+		baseHandler = new BaseHandler(msgMethod, this);
 	}
 
 	protected <T extends View> T getViewById(int id) {
@@ -146,10 +135,10 @@ public class EasyAndroidActivity extends Activity {
 		int id = listener.id();
 		View v = findViewById(id);
 		Event event = listener.event();
-		
+
 		IEventHandler handler = CoreFactory.getEventFactory().getEventHandler(
 				event, this);
-		if(handler == null){
+		if (handler == null) {
 			return;
 		}
 		handler.registerEvent(v, method);
@@ -211,6 +200,42 @@ public class EasyAndroidActivity extends Activity {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	/**
+	 * 通用handler
+	 * @author Administrator
+	 *
+	 */
+	private static class BaseHandler extends Handler {
+
+		private WeakReference<SparseArray<Method>> wrMsgMethod;
+
+		private WeakReference<EasyAndroidActivity> wrMActivity;
+
+		public BaseHandler(SparseArray<Method> msgMethod,
+				EasyAndroidActivity mActivity) {
+			wrMsgMethod = new WeakReference<SparseArray<Method>>(msgMethod);
+			wrMActivity = new WeakReference<EasyAndroidActivity>(mActivity);
+		}
+
+		@Override
+		public void handleMessage(Message msg) {
+
+			try {
+				int i = msg.what;
+				SparseArray<Method> msgMethod = wrMsgMethod.get();
+				EasyAndroidActivity mActivity = wrMActivity.get();
+				Method method = msgMethod.get(i);
+				Object o = mActivity;
+				method.setAccessible(true);
+				method.invoke(mActivity.getClass().cast(o));
+				method.setAccessible(false);
+			} catch (Exception e) {
+				Log.e(TAG, "handle message exception", e);
+			}
+
 		}
 	}
 }
